@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sprite Walker</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="sprite-wrapper">
+          <div class="sprite sprite-square"></div>
+        </div>
+        <fieldset class="sprite-toggle-buttons">
+          <legend class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Choose animation</legend>
+          <label><input type="radio" value="Idle" name="animation" checked/><span>Idle</span></label>
+          <label><input type="radio" value="Walk" name="animation" /><span>Walk</span></label>
+          <label><input type="radio" value="Talk" name="animation" /><span>Talk</span></label>
+          <label><input type="radio" value="Run" name="animation" /><span>Run</span></label>
+          <label><input type="radio" value="Punch" name="animation" /><span>Punch</span></label>
+          <label><input type="radio" value="Jump" name="animation" /><span>Jump</span></label>
+          <label><input type="radio" value="Death" name="animation" /><span>Death</span></label>
+          <label class="rate-label">Rate
+            <select name="rate" aria-label="Frame rate">
+              <option value="6">6 f/s</option>
+              <option value="12" selected>12 f/s</option>
+              <option value="24">24 f/s</option>
+              <option value="60">60 f/s</option>
+            </select>
+          </label>
+        </fieldset>
+      </div>
+
+<a href="../../index.html" id="lab-back" aria-label="Back to all experiments">&#9666; All experiments</a>
+<style>
+#lab-back{position:fixed;left:14px;bottom:14px;z-index:2147483000;padding:8px 14px 9px;border-radius:999px;
+background:rgba(16,16,22,.72);color:#e2e6e3;font:500 12px/1 system-ui,-apple-system,sans-serif;letter-spacing:.05em;
+text-decoration:none;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+border:1px solid rgba(255,255,255,.14);opacity:.55;transition:opacity .2s,background .2s,color .2s,transform .2s}
+#lab-back:hover,#lab-back:focus-visible{opacity:1;background:#711BFF;color:#fff;transform:translateY(-1px);outline:none}
+@media (prefers-reduced-motion:reduce){#lab-back{transition:none}}
+</style>
+
+</body>
+</html>
