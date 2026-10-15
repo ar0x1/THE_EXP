@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>You Won Something…</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg1: #0f2027; --bg2: #203a43; --bg3: #2c5364;
+      --gold: #ffd369; --gold-deep: #ffb703;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh;
+      background: linear-gradient(135deg, var(--bg1), var(--bg2), var(--bg3));
+      display: flex; flex-direction: column; justify-content: center; align-items: center;
+      font-family: 'Poppins', sans-serif; color: #fff; text-align: center; padding: 24px;
+      overflow: hidden;
+    }
+    .glow {
+      position: fixed; inset: -40%;
+      background: radial-gradient(circle at 50% 40%, rgba(255,211,105,.12), transparent 55%);
+      pointer-events: none;
+    }
+    h1 { font-size: clamp(26px, 5vw, 44px); font-weight: 800; margin: 0 0 8px; letter-spacing: -0.01em; }
+    .sub { opacity: .65; font-weight: 400; margin: 0 0 36px; font-size: clamp(14px, 2.4vw, 18px); }
+    .box {
+      padding: 20px 54px; border: 0; border-radius: 999px;
+      background: var(--gold); color: #1a1a1a;
+      font: 600 clamp(16px, 2.6vw, 20px) 'Poppins', sans-serif;
+      cursor: pointer; transition: transform .25s cubic-bezier(.34,1.56,.64,1), background .25s, box-shadow .25s;
+      box-shadow: 0 10px 40px rgba(255,211,105,.35);
+      animation: float 3s ease-in-out infinite;
+    }
+    .box:hover, .box:focus-visible { transform: scale(1.08); background: var(--gold-deep); box-shadow: 0 14px 54px rgba(255,183,3,.5); outline: none; }
+    .box:active { transform: scale(.96); }
+    @keyframes float { 0%,100% { translate: 0 0; } 50% { translate: 0 -8px; } }
+    @media (prefers-reduced-motion: reduce) { .box { animation: none; transition: none; } }
+  </style>
+</head>
+<body>
+  <div class="glow"></div>
+  <h1>Congratulations — you got</h1>
+  <p class="sub">A mystery prize is waiting. No take-backs.</p>
+  <button class="box" id="reveal">🎁 Tap to Reveal</button>
+
+  <script>
+    document.getElementById('reveal').addEventListener('click', function () {
+      this.textContent = 'Opening…';
+      setTimeout(function () { window.location.href = 'reward.html'; }, 350);
+    });
+  </script>
+<a href="../../index.html" id="lab-back" aria-label="Back to all experiments">&#9666; All experiments</a>
+<style>
+#lab-back{position:fixed;left:14px;bottom:14px;z-index:2147483000;padding:8px 14px 9px;border-radius:999px;
+background:rgba(16,16,22,.72);color:#e2e6e3;font:500 12px/1 system-ui,-apple-system,sans-serif;letter-spacing:.05em;
+text-decoration:none;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+border:1px solid rgba(255,255,255,.14);opacity:.55;transition:opacity .2s,background .2s,color .2s,transform .2s}
+#lab-back:hover,#lab-back:focus-visible{opacity:1;background:#711BFF;color:#fff;transform:translateY(-1px);outline:none}
+@media (prefers-reduced-motion:reduce){#lab-back{transition:none}}
+</style>
+</body>
+</html>

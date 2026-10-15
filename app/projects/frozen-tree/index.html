@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Frozen Tree — Interactive</title>
+  <style>
+    @import url(https://fonts.googleapis.com/css?family=Poiret+One);
+    html {
+      overflow: hidden;
+      touch-action: none;
+      /* content-zooming: none; */
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      position: absolute;
+      margin: 0;
+      padding: 0;
+      background: #111;
+      width: 100%;
+      height: 100%;
+    }
+    #canvas {
+      width: 100%;
+      height: 100%;
+      background: #fff;
+      position: absolute;
+    }
+    #text {
+      position: absolute;
+      left: 0;
+      bottom: 10px;
+      width: 100%;
+      pointer-events: none;
+    }
+    #text div {
+      position: absolute;
+      color: #888;
+      left: 0;
+      width: 100%;
+      text-align: center;
+      top: -32px;
+      font-family: 'Poiret One', cursive;
+      font-size: 32px;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+  <div id="text">
+    <div id="clic" nowrap>this pen is mouse/touch interactive</div>
+  </div>
+  <script>
+    !function() {
+      "use strict";
+
+      function Branch(parent, level, x, y) {
+        this.parent = parent;
+        this.branches = [];
+        this.p0 = parent ? parent.p1 : new Point(x, y);
+        this.p1 = new Point(x, y);
+        this.level = level;
+        this.life = 20;
+        this.angle = 0;
+        this.vx = 0;
+        this.vy = 0;
+      }
+
+      Branch.prototype.grow = function() {
+        for (var i = 0; i < this.branches.length; i++) this.branches[i].grow();
+        if (this.life > 1) {
+          this.p1.x += this.vx;
+          this.p1.y += this.vy;
+          ctx.save();
+          ctx.beginPath();
+          // Add some irregularity to the branch width for texture
+          let baseWidth = this.level ? (this.level * 6 - 5) : 10;
+          let widthJitter = this.level ? (Math.random() * 2 - 1) * (this.level * 0.7) : Math.random() * 2;
+          ctx.lineWidth = Math.max(1, baseWidth + widthJitter);
+          // Branch color: use dark black
+          if (this.level) {
+            ctx.lineWidth = this.level * 6 - 5;
+            ctx.strokeStyle = "#000";
+            if (this.parent) {
+              // Use bezier curve for more natural branch shape
+              let midX = (this.p0.x + this.p1.x) / 2 + (Math.random() - 0.5) * 10 * this.level;
+              let midY = (this.p0.y + this.p1.y) / 2 + (Math.random() - 0.5) * 10 * this.level;
+              ctx.moveTo(this.parent.p0.x, this.parent.p0.y);
+              ctx.bezierCurveTo(midX, midY, this.p0.x, this.p0.y, this.p1.x, this.p1.y);
+            }
+            ctx.stroke();
+          } else {
+            // Flower: orange blossom style, larger size
+            let petalCount = 5;
+            let radius = 18 + Math.random() * 4; // Increased size for visibility
+            let angleOffset = Math.random() * Math.PI * 2;
+            for (let i = 0; i < petalCount; i++) {
+              let angle = angleOffset + (i * 2 * Math.PI / petalCount);
+              let petalX = this.p1.x + Math.cos(angle) * radius;
+              let petalY = this.p1.y + Math.sin(angle) * radius;
+              ctx.beginPath();
+              ctx.moveTo(this.p1.x, this.p1.y);
+              ctx.quadraticCurveTo(
+                this.p1.x + Math.cos(angle - 0.3) * (radius * 0.8),
+                this.p1.y + Math.sin(angle - 0.3) * (radius * 0.8),
+                petalX,
+                petalY
+              );
+              let grad = ctx.createRadialGradient(
+                this.p1.x, this.p1.y, 0,
+                petalX, petalY, radius
+              );
+              grad.addColorStop(0, "#fffbe6"); // very light orange
+              grad.addColorStop(0.7, "#ffd580"); // soft orange
+              grad.addColorStop(1, "#ff9900"); // deep orange edge
+              ctx.fillStyle = grad;
+              ctx.globalAlpha = 0.93;
+              ctx.fill();
+              ctx.globalAlpha = 1.0;
+            }
+            // Draw a larger yellow-orange center
+            ctx.beginPath();
+            ctx.arc(this.p1.x, this.p1.y, 4, 0, 2 * Math.PI);
+            ctx.fillStyle = "#ffb300";
+            ctx.fill();
+          }
+          ctx.restore();
+        }
+        if (this.life === 1 && this.level > 0 && this.level < maxLevels) {
+          this.branches.push(newBranch(this));
+          this.branches.push(newBranch(this));
+        }
+        this.life--;
+      };
+
+      function Point(x, y) {
+        this.x = x;
+        this.y = y;
+      }
+
+      function newBranch(parent) {
+        var branch = new Branch(parent, parent.level - 1, parent.p1.x, parent.p1.y);
+        branch.angle = (autorun && parent.level === maxLevels) ? Math.random() * 2 * Math.PI : Math.atan2(
+          parent.p1.y - parent.p0.y,
+          parent.p1.x - parent.p0.x
+        ) + (Math.random() * 1.4 - 0.7);
+        branch.vx = Math.cos(branch.angle) * 12;
+        branch.vy = Math.sin(branch.angle) * 12;
+        branch.life = branch.level === 1 ? 5 : Math.round(Math.random() * (branch.level * 2)) + 2;
+        return branch;
+      }
+
+      function run() {
+        requestAnimationFrame(run);
+        if (++frame % 2) {
+          ctx.globalCompositeOperation = "lighter";
+          ctx.fillStyle = "rgba(255,255,255,0.01)";
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.globalCompositeOperation = "source-over";
+        }
+        current.p1.x = pointer.x;
+        current.p1.y = pointer.y;
+        root.grow();
+        if ((autorun && Math.random() > 0.8) || pointer.moveDistance > 20) {
+          pointer.moveDistance = 0;
+          var branch = new Branch(current, current.level, current.p1.x, current.p1.y);
+          current.branches.push(branch);
+          if (Math.random() > 0.8) current.branches.push(newBranch(current));
+          current = branch;
+          nBranches++;
+        }
+        if (nBranches > maxBranches) {
+          root = root.branches[0];
+          nBranches--;
+        }
+      }
+
+      var canvas = {
+        elem: document.getElementById('canvas'),
+        width: 0,
+        height: 0,
+        resize: function() {
+          this.width = this.elem.width = this.elem.offsetWidth;
+          this.height = this.elem.height = this.elem.offsetHeight;
+        }
+      };
+
+      var ctx = canvas.elem.getContext("2d");
+      canvas.elem.onselectstart = function() { return false; };
+      canvas.elem.ondragstart = function() { return false; };
+      window.addEventListener('resize', canvas.resize.bind(canvas), false);
+      canvas.resize();
+
+      var pointer = {
+        x: canvas.width * 0.5,
+        y: canvas.height * 0.5,
+        px: 0,
+        py: 0,
+        moveDistance: 0,
+        move: function(e) {
+          e.preventDefault();
+          var pointer = e.targetTouches ? e.targetTouches[0] : e;
+          this.x = pointer.clientX;
+          this.y = pointer.clientY;
+          var dx = this.x - this.px;
+          var dy = this.y - this.py;
+          this.moveDistance += Math.sqrt(dx * dx + dy * dy);
+          if (this.moveDistance > 40) {
+            this.x = this.px + dx * 0.1;
+            this.y = this.py + dy * 0.1;
+          }
+          if (autorun) {
+            this.x = pointer.clientX;
+            this.y = pointer.clientY;
+            root = new Branch(false, maxLevels, this.x, this.y);
+            current = root;
+            autorun = false;
+            document.getElementById("clic").innerHTML = "";
+          }
+          this.px = this.x;
+          this.py = this.y;
+        }
+      };
+
+      window.addEventListener("mousemove", pointer.move.bind(pointer), false);
+      canvas.elem.addEventListener("touchmove", pointer.move.bind(pointer), false);
+
+      var maxLevels = 7;
+      var nBranches = 0;
+      var maxBranches = 200;
+      var autorun = true;
+      var frame = 0;
+      var root = new Branch(false, maxLevels, pointer.x, pointer.y);
+      var current = root;
+
+      run();
+    }();
+  </script>
+
+<a href="../../index.html" id="lab-back" aria-label="Back to all experiments">&#9666; All experiments</a>
+<style>
+#lab-back{position:fixed;left:14px;bottom:14px;z-index:2147483000;padding:8px 14px 9px;border-radius:999px;
+background:rgba(16,16,22,.72);color:#e2e6e3;font:500 12px/1 system-ui,-apple-system,sans-serif;letter-spacing:.05em;
+text-decoration:none;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+border:1px solid rgba(255,255,255,.14);opacity:.55;transition:opacity .2s,background .2s,color .2s,transform .2s}
+#lab-back:hover,#lab-back:focus-visible{opacity:1;background:#711BFF;color:#fff;transform:translateY(-1px);outline:none}
+@media (prefers-reduced-motion:reduce){#lab-back{transition:none}}
+</style>
+
+</body>
+</html>
